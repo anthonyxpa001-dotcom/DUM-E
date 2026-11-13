@@ -1,26 +1,37 @@
-plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-}
 
-android {
-    namespace = "com.robotarm.control"
-    compileSdk = 35
+name: Build Android APK
 
-    defaultConfig {
-        applicationId = "com.robotarm.control"
-        minSdk = 23
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
-    }
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        working-directory: RobotArmControl_proyecto/RobotArmControl
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DUM-E-APK
+          path: RobotArmControl_proyecto/RobotArmControl/app/build/outputs/apk/debug/app-debug.apk
